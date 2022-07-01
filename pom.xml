@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>chat-qa-ta-jdi</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <jdi.light.html.version>1.3.17</jdi.light.html.version>
+        <allure.testng>2.17.2</allure.testng>
+        <testng.version>7.5</testng.version>
+        <rest.assured.version>4.4.0</rest.assured.version>
+        <aspectj.version>1.9.5</aspectj.version>
+        <maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
+        <allure.maven>2.10.0</allure.maven>
+        <allure.maven.report>2.4.1</allure.maven.report>
+        <webfirmframework.version>3.0.19</webfirmframework.version>
+        <suite>general.xml</suite>
+    </properties>
+
+    <dependencies>
+        <!--JDI-->
+        <dependency>
+            <groupId>com.epam.jdi</groupId>
+            <artifactId>jdi-light-html</artifactId>
+            <version>${jdi.light.html.version}</version>
+        </dependency>
+
+        <!--Allure-->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.testng}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest.assured.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.webfirmframework</groupId>
+            <artifactId>wffweb</artifactId>
+            <version>${webfirmframework.version}</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <!--Allure reporting config in parent-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+                    </systemPropertyVariables>
+                    <!--<suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/ui/${suite}</suiteXmlFile>
+                    </suiteXmlFiles>-->
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+                    <!--                    <reportsDirectory>./target/test-output</reportsDirectory>-->
+                    <properties>
+                        <!--                        <property>-->
+                        <!--                            <name>listener</name>-->
+                        <!--                            <value>${sbcListener}</value>-->
+                        <!--                        </property>-->
+                        <property>
+                            <name>reporter</name>
+                            <value>org.testng.reporters.XMLReporter</value>
+                        </property>
+                    </properties>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure.maven}</version>
+                <configuration>
+                    <reportVersion>${allure.maven.report}</reportVersion>
+                </configuration>
+            </plugin>
+            <!--json2pojo-->
+            <plugin>
+                <groupId>org.jsonschema2pojo</groupId>
+                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+                <version>1.0.2</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/test/resources/api/schema</sourceDirectory>
+                    <targetPackage>com.dto</targetPackage>
+                    <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
+                    <sourceType>json</sourceType>
+                    <includeGetters>false</includeGetters>
+                    <includeSetters>false</includeSetters>
+                    <serializable>false</serializable>
+                    <parcelable>false</parcelable>
+                    <includeConstructors>true</includeConstructors>
+                    <includeHashcodeAndEquals>false</includeHashcodeAndEquals>
+                    <includeToString>false</includeToString>
+                    <annotationStyle>jackson</annotationStyle>
+                    <useLongIntegers>true</useLongIntegers>
+                    <includeAdditionalProperties>true</includeAdditionalProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>
